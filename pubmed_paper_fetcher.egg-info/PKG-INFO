@@ -1,0 +1,6 @@
+Metadata-Version: 2.2
+Name: pubmed-paper-fetcher
+Version: 0.1.0
+Summary: A tool to fetch papers from PubMed
+Requires-Python: >=3.7
+Requires-Dist: requests>=2.32.0

@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pubmed-paper-fetcher"
+version = "0.1.0"
+description = "A tool to fetch papers from PubMed"
+requires-python = ">=3.7"
+dependencies = [
+    "requests>=2.32.0",
+]
