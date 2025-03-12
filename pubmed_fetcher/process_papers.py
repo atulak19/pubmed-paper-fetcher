@@ -1,32 +1,28 @@
 import re
 import csv
+from typing import List, Dict, Any, Optional
 
-def extract_company_authors(papers):
-    """
-    Filter papers to include only those with company/industry affiliations.
-    
-    :param papers: List of paper details from fetch_paper_details
-    :return: List of papers with company authors
-    """
-    company_keywords = ['Inc', 'Ltd', 'LLC', 'Corp', 'Limited', 'Company', 
+def extract_company_authors(papers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Filter papers to only include those with company/industry affiliations"""
+    # Keywords that suggest company/industry affiliation
+    company_keywords: List[str] = ['Inc', 'Ltd', 'LLC', 'Corp', 'Limited', 'Company', 
                        'Pharma', 'Pharmaceuticals', 'Biotech', 'Industries',
                        'GmbH', 'AG', 'SA', 'NV', 'Pfizer', 'Merck', 'Novartis',
                        'AstraZeneca', 'Roche', 'Sanofi']
     
-    filtered_papers = []
+    filtered_papers: List[Dict[str, Any]] = []
     
     for paper in papers:
-        company_authors = []
+        company_authors: List[str] = []
         
-        # Check each author's affiliation for company keywords
+        # Look through each author's affiliation for company keywords
         for author in paper.get('Authors', []):
             if any(keyword.lower() in author.lower() for keyword in company_keywords):
-                # Extract just the author name and affiliation
                 company_authors.append(author)
         
-        # If we found any company authors, add this paper to our results
+        # Only keep papers that have at least one company author
         if company_authors:
-            filtered_paper = {
+            filtered_paper: Dict[str, Any] = {
                 'Title': paper['Title'],
                 'Publication Date': paper['Publication Date'],
                 'PMID': paper['PMID'],
@@ -37,25 +33,21 @@ def extract_company_authors(papers):
     return filtered_papers
 
 
-
-def save_to_csv(filtered_papers, filename="filtered_papers.csv"):
-    """
-    Saves the filtered research papers to a CSV file.
-
-    :param filtered_papers: List of dictionaries containing paper details.
-    :param filename: Name of the output CSV file (default: "filtered_papers.csv").
-    """
+def save_to_csv(filtered_papers: List[Dict[str, Any]], filename: str = "filtered_papers.csv") -> None:
+    """Save filtered papers to a CSV file"""
     if not filtered_papers:
         print("No papers to save.")
         return
 
-    headers = ["PMID", "Title", "Publication Date", "Company Authors"]
+    # Define CSV columns
+    headers: List[str] = ["PMID", "Title", "Publication Date", "Company Authors"]
 
     try:
         with open(filename, mode="w", newline="", encoding="utf-8") as file:
-            writer = csv.DictWriter(file, fieldnames=headers)
-            writer.writeheader()  # Write column headers
+            writer: csv.DictWriter = csv.DictWriter(file, fieldnames=headers)
+            writer.writeheader()
 
+            # Write each paper as a row
             for paper in filtered_papers:
                 writer.writerow({
                     "PMID": paper["PMID"],

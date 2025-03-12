@@ -1,12 +1,12 @@
 import argparse
+from typing import List, Dict, Any, Optional
 from .fetch_papers import fetch_pubmed_pmids, fetch_paper_details
 from .process_papers import extract_company_authors, save_to_csv
 
-def main():
-    """Command-line interface for PubMed paper fetcher."""
-    
-    # Setup argument parser
-    parser = argparse.ArgumentParser(
+def main() -> None:
+    """Main CLI entry point for the PubMed paper fetcher"""
+    # Set up command line args
+    parser: argparse.ArgumentParser = argparse.ArgumentParser(
         description="Fetch research papers from PubMed, filter those with non-academic (company) authors, and save results to a CSV file."
     )
     parser.add_argument(
@@ -26,28 +26,29 @@ def main():
         action="store_true", 
         help="Enable debug mode to print raw API responses for troubleshooting."
     )
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
     
-    # Fetch PMIDs based on user query
+    # Step 1: Search PubMed for papers
     print(f"\n🔍 Searching PubMed for: {args.query}")
-    pmid_list = fetch_pubmed_pmids(args.query, retmax=2, debug=args.debug)  # Pass debug flag
+    pmid_list: List[str] = fetch_pubmed_pmids(args.query, retmax=2, debug=args.debug)
 
     if not pmid_list:
         print("❌ No PMIDs found. Exiting.")
         return
 
+    # Show found PMIDs
     print("\nFound PMIDs:")
     for pmid in pmid_list:
         print(f"- PMID: {pmid} | Link: https://pubmed.ncbi.nlm.nih.gov/{pmid}/")
 
-    # Fetch full paper details
-    paper_details = fetch_paper_details(pmid_list, debug=args.debug)  # Pass debug flag
+    # Step 2: Get detailed info for each paper
+    paper_details: List[Dict[str, Any]] = fetch_paper_details(pmid_list, debug=args.debug)
 
-    # Filter for non-academic authors
+    # Step 3: Filter for papers with company authors
     print("\nFiltering Non-Academic Authors...")
-    filtered_papers = extract_company_authors(paper_details)
+    filtered_papers: List[Dict[str, Any]] = extract_company_authors(paper_details)
 
-    # Save results to CSV with user-specified filename
+    # Step 4: Display results
     if filtered_papers:
         print(f"\nTotal Papers with Company Authors: {len(filtered_papers)}")
         for paper in filtered_papers:
@@ -59,6 +60,7 @@ def main():
     else:
         print("\nNo papers found with company authors.")
 
+    # Step 5: Save to CSV file
     save_to_csv(filtered_papers, args.file)
     print(f"\n✅ Results saved to {args.file}")
 
